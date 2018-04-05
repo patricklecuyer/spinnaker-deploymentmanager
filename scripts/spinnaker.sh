@@ -36,11 +36,14 @@ IGOR_VERSION=`metadata_value "instance/attributes/igorVersion"`
 ORCA_VERSION=`metadata_value "instance/attributes/orcaVersion"`
 ROSCO_VERSION=`metadata_value "instance/attributes/roscoVersion"`
 SPINNAKER_VERSION=`metadata_value "instance/attributes/spinnakerVersion"`
+KUBE_CLUSTER_NAME=`metadata_value "instance/attributes/kubeClusterName"`
+
 
 curl -sSO https://dl.google.com/cloudagents/install-logging-agent.sh
 bash install-logging-agent.sh
 curl -sSO https://repo.stackdriver.com/stack-install.sh
 bash stack-install.sh --write-gcm
+
 
 echo "deb https://dl.bintray.com/spinnaker/debians trusty spinnaker" > /etc/apt/sources.list.d/spinnaker.list
 curl -s -f "https://bintray.com/user/downloadSubjectPublicKey?username=spinnaker" | apt-key add -
@@ -77,6 +80,12 @@ ln -sf /etc/apache2/sites-available/jenkins.conf /etc/apache2/sites-enabled/jenk
 a2enmod headers
 service apache2 restart
 
+export KUBECONFIG=/tmp/kubeconfig
+gcloud container clusters get-credentials $KUBE_CLUSTER_NAME --zone=$ZONE
+mkdir /home/spinnaker/.kube
+cp  /tmp/kubeconfig /home/spinnaker/.kube/config
+chown -R spinnaker:spinnaker /home/spinnaker/.kube/config
+
 # Install Packer
 mkdir -p /tmp/packer
 pushd /tmp/packer
@@ -96,7 +105,9 @@ SPINNAKER_JENKINS_ENABLED=true
 SPINNAKER_JENKINS_BASEURL=http://localhost:8082/
 SPINNAKER_JENKINS_USER=jenkins
 SPINNAKER_JENKINS_PASSWORD=$JENKINS_PASSWORD
-
+SPINNAKER_KUBERNETES_ENABLED=true
+SPINNAKER_DOCKER_REGISTRY=https://gcr.io
+SPINNAKER_DOCKER_REPOSITORY=daas-cdnhackathon-gcr
 SPINNAKER_REDIS_HOST=$REDIS_IP
 EOF
 

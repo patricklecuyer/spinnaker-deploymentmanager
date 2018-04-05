@@ -48,11 +48,11 @@ properties:
   region:
     type: string
     description: "Google Cloud Region to deploy Spinnaker stack"
-    default: "us-west1"
+    default: "us-central1"
   zone:
     type: string
     description: "Google Cloud Zone to deploy Spinnaker stack"
-    default: "us-west1-a"
+    default: "us-central1-a"
   ipCidrRange:
     type: string
     description: "Subnet to place Spinnaker VMs in, must be valid CIDR"
